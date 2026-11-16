@@ -12,6 +12,7 @@
       connected: '이 계정으로 등록한 제품의 보유 여부가 다른 기기와 동기화됩니다.',
       signIn: 'Puter로 로그인', signOut: '로그아웃하고 기기 저장으로 전환', loading: '로그인 준비 중…',
       waiting: 'Puter 로그인 창에서 계속하세요.', retry: '다시 연결', offline: '계정에 연결할 수 없습니다. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.',
+      blocked: '브라우저에서 로그인 창이 차단되었습니다. 이 사이트의 팝업을 허용한 뒤 다시 눌러 주세요.',
       cancelled: '로그인을 완료하지 않았습니다. 다시 시도할 수 있습니다.' },
     en: { guest: 'On this device', cloud: 'Sync account', account: 'Collection storage', close: 'Close',
       intro: 'Before sign-in, your collection is saved in this browser. Sign in with a Puter account to see its collection on your phone and computer.',
@@ -19,6 +20,7 @@
       connected: 'Products marked as owned sync to other devices signed in to this account.',
       signIn: 'Sign in with Puter', signOut: 'Sign out and use device storage', loading: 'Preparing sign-in…',
       waiting: 'Continue in the Puter sign-in window.', retry: 'Reconnect', offline: 'Could not connect to your account. Check your connection and try again.',
+      blocked: 'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.',
       cancelled: 'Sign-in was not completed. You can try again.' }
   };
   let sdkPromise, initPromise, dialog, lang = 'ko';
@@ -217,12 +219,14 @@
           pendingLogin = true;
           paint(); status.textContent = t.waiting;
           try {
-            if (!p.auth.isSignedIn()) await p.auth.signIn();
+            await p.auth.signIn({request_auth: true});
             if (!p.auth.isSignedIn()) throw new Error('Sign-in canceled');
             const user = await p.auth.getUser();
             changeMode(true, user);
             dialog.close();
-          } catch { status.textContent = t.cancelled; }
+          } catch (error) {
+            status.textContent = error?.error === 'popup_blocked' ? t.blocked : t.cancelled;
+          }
           finally { pendingLogin = false; paint(); }
         };
       } catch {

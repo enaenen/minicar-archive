@@ -126,6 +126,7 @@ function applyCopy() {
   renderFolder();
   document.documentElement.lang = state.lang;
   document.title = t('archive') + ' · Garage Index';
+  document.querySelector('.wordmark').href = location.pathname + location.hash;
   document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.dataset.i18n); });
   $('navigation').setAttribute('aria-label', t('nav'));
   $('query').placeholder = t('query');
@@ -526,7 +527,15 @@ $('search-form').addEventListener('submit', event => { event.preventDefault(); c
 for (const key of ['brand','year','month']) $(key).addEventListener('change',event => changeFilters({[key]:event.target.value,q:$('query').value.trim()}));
 $('clear-filters').addEventListener('click', () => changeFilters({q:'',brand:'',year:'',month:''}));
 document.querySelectorAll('[data-owned]').forEach(node => node.addEventListener('click', () => setOwnedFilter(node.dataset.owned)));
-$('nav-catalog').addEventListener('click', () => changeFilters({owned:'all',q:'',brand:'',year:'',month:''}));
+function showArchive() {
+  changeFilters({owned:'all',q:'',brand:'',year:'',month:''});
+}
+$('nav-catalog').addEventListener('click', showArchive);
+document.querySelector('.wordmark').addEventListener('click', event => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  showArchive();
+});
 $('nav-owned').addEventListener('click', () => changeFilters({owned:'yes',q:'',brand:'',year:'',month:''}));
 $('account').addEventListener('click', openStorage);
 $('open-folder').addEventListener('click',() => {
