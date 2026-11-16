@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183562">
+  <title>미니카 아카이브 · Garage Index</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./folder.js"></script>
+  <script defer src="./access.js"></script>
+  <script defer src="./catalog.js"></script>
+  <script defer src="./collection.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="mast-inner">
+      <a class="wordmark" href="./" aria-label="Garage Index"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Garage Index</a>
+      <nav class="view-tabs" aria-label="메뉴" id="navigation">
+        <button type="button" id="nav-catalog" data-i18n="catalogNav" aria-current="page">아카이브</button>
+        <button type="button" id="nav-owned" data-i18n="collectionNav">내 컬렉션</button>
+      </nav>
+      <div class="account-tools">
+        <div class="language" aria-label="Language">
+          <button type="button" lang="ko" id="lang-ko" aria-pressed="true">한국어</button><button type="button" lang="en" id="lang-en" aria-pressed="false">EN</button>
+        </div>
+        <button type="button" class="account" id="account"><span aria-hidden="true" class="person-icon"></span><span id="account-label">컬렉션 저장</span></button>
+      </div>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="catalog-heading" aria-labelledby="heading">
+      <div>
+        <h1 id="heading">미니카 아카이브</h1>
+        <div class="totals" id="totals" aria-live="polite"></div>
+      </div>
+      <div class="folder-control">
+        <button type="button" id="open-folder" class="folder-button"><span aria-hidden="true" class="folder-icon"></span><span id="folder-button-label">사진 폴더 연결</span></button>
+        <span id="folder-status"></span>
+      </div>
+    </section>
+    <section class="browse" aria-labelledby="results-title">
+      <form class="toolbar" id="search-form" role="search">
+        <label class="search-field">
+          <span class="search-icon" aria-hidden="true"></span>
+          <input id="query" type="search" autocomplete="off" placeholder="브랜드, 차명, 품번 검색" aria-label="검색어">
+        </label>
+        <button class="search-button" type="submit" data-i18n="search">검색</button>
+      </form>
+      <div class="filters">
+        <div class="selectors">
+          <label><span data-i18n="brand">브랜드</span><select id="brand"></select></label>
+          <label><span data-i18n="releaseYear">출시 연도</span><select id="year"></select></label>
+          <label><span data-i18n="releaseMonth">출시 월</span><select id="month"></select></label>
+        </div>
+        <fieldset id="holdings" class="holdings">
+          <legend class="sr-only" data-i18n="collectionStatus">소장 상태</legend>
+          <button type="button" data-owned="all" aria-pressed="true" data-i18n="all">전체</button>
+          <button type="button" data-owned="yes" aria-pressed="false" data-i18n="owned">보유</button>
+          <button type="button" data-owned="no" aria-pressed="false" data-i18n="missing">미보유</button>
+        </fieldset>
+      </div>
+      <div class="results-head">
+        <div><h2 id="results-title">제품 목록</h2><span id="result-count" aria-live="polite"></span></div>
+        <button id="clear-filters" type="button" class="clear-filters" hidden data-i18n="reset">조건 초기화</button>
+      </div>
+      <div class="cards" id="cards" aria-busy="true"></div>
+      <div class="notice" id="catalog-notice" role="status" hidden></div>
+      <nav class="pagination" id="pagination" aria-label="페이지"></nav>
+    </section>
+  </main>
+  <dialog class="detail-dialog" id="detail-dialog">
+    <div class="dialog-top"><span id="detail-code"></span><button type="button" class="close" data-close="detail-dialog"><span aria-hidden="true">×</span></button></div>
+    <div class="detail-body" id="detail-body"></div>
+  </dialog>
+  <dialog class="auth-dialog" id="auth-dialog" aria-labelledby="auth-title">
+    <div class="dialog-top"><span class="dialog-brand" lang="en">Garage Index</span><button type="button" class="close" data-close="auth-dialog"><span aria-hidden="true">×</span></button></div>
+    <div class="auth-content">
+      <h2 id="auth-title"></h2>
+      <p id="auth-intro"></p>
+      <div class="backup-tools"><button class="primary" type="button" id="backup-export"></button><button class="switch-auth" type="button" id="backup-import"></button><input id="backup-file" type="file" accept=".json,application/json" hidden></div>
+      <p id="backup-message" role="status"></p>
+    </div>
+  </dialog>
+  <dialog class="auth-dialog" id="folder-dialog" aria-labelledby="folder-title">
+    <div class="dialog-top"><span class="dialog-brand">Garage Index</span><button type="button" class="close" data-close="folder-dialog"><span aria-hidden="true">×</span></button></div>
+    <div class="auth-content">
+      <h2 id="folder-title" data-i18n="folderTitle">이 기기의 사진 폴더</h2>
+      <p data-i18n="folderHelp">Mac에 저장한 미니카 아카이브에서 archive → products 폴더를 선택하세요. 사진은 이 기기에서만 열립니다.</p>
+      <button id="choose-folder" class="primary" type="button"></button>
+      <button id="forget-folder" class="switch-auth" type="button" data-i18n="disconnect">연결 해제</button>
+      <p id="folder-message" role="status"></p>
+    </div>
+  </dialog>
+  <div id="toast" role="status" class="toast" hidden></div>
+  <template id="card-template">
+    <article class="card">
+      <button type="button" class="card-image" aria-label="" hidden>
+        <img width="540" height="360" decoding="async" alt="" hidden>
+      </button>
+      <div class="card-details">
+        <div class="card-metadata"><span class="card-code"></span><span class="card-scale"></span></div>
+        <h3><button type="button" class="card-title"></button></h3>
+        <span class="card-series"></span>
+        <div class="card-foot"><span class="card-date"></span><button type="button" class="card-own"><span class="toggle-icon" aria-hidden="true"></span><span class="toggle-copy"></span></button></div>
+      </div>
+    </article>
+  </template>
+</body>
+</html>

@@ -1,0 +1,6 @@
+catalog.json
+*.key
+*.webloc
+node_modules/
+*.log
+.DS_Store
